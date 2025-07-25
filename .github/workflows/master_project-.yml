@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - Project-
+name: Build and deploy Node.js app to Azure Web App - Project
 
 on:
   push:
@@ -20,6 +20,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Build React frontend
+        working-directory: client
+        run: npm run build
+
+      - name: Copy React build to server folder
+        run: |
+          rm -rf server/build
+          cp -r client/build server/
 
       - name: Install server dependencies
         working-directory: server
@@ -45,7 +58,7 @@ jobs:
           name: node-app
           path: server
 
-      - name: Install server dependencies (again for deploy environment)
+      - name: Install server dependencies (again)
         working-directory: server
         run: npm install --omit=dev
 
@@ -63,8 +76,7 @@ jobs:
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
-          app-name: 'Project-'  # Replace this if your app service name is different
+          app-name: 'project-notesapp'  # 🔁 REPLACE with your actual App Service name
           slot-name: 'Production'
           package: server.zip
