@@ -25,6 +25,19 @@ jobs:
         working-directory: server
         run: npm install
 
+      - name: Install client dependencies
+        working-directory: client
+        run: npm install
+
+      - name: Build React frontend
+        working-directory: client
+        run: npm run build
+
+      - name: Copy React build to server folder
+        run: |
+          rm -rf server/build
+          cp -r client/build server/
+
       - name: Upload server folder as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -65,6 +78,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'Project-'  # ✅ Use the exact name
+          app-name: 'Project-'
           slot-name: 'Production'
           package: server.zip
