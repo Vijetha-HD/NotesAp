@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout code
@@ -47,9 +45,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - name: Download build artifact
@@ -58,7 +53,7 @@ jobs:
           name: node-app
           path: server
 
-      - name: Install server dependencies (again for deploy environment)
+      - name: Install production dependencies
         working-directory: server
         run: npm install --omit=dev
 
@@ -67,7 +62,7 @@ jobs:
           cd server
           zip -r ../server.zip . -x "*.git*" -x "*node_modules*"
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3EC47BD4FD2C4FD885FB177C91B097D8 }}
@@ -76,7 +71,6 @@ jobs:
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'Project-'
           slot-name: 'Production'
