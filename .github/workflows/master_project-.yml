@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - Project-
+name: Build and deploy Node.js app to Azure Web App - NotesApp
 
 on:
   push:
@@ -15,46 +15,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: ✅ Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 🛠️ Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: Install frontend dependencies
+      - name: 📦 Install frontend dependencies
         working-directory: client
         run: npm install
 
-      - name: Build frontend
+      - name: 🏗️ Build frontend
         working-directory: client
         run: npm run build
 
-      - name: Copy build to server
+      - name: 📁 Copy React build to backend
         run: |
           rm -rf server/build
           cp -r client/build server/
 
-      - name: Install backend dependencies
+      - name: 📦 Install backend dependencies
         working-directory: server
         run: npm install
 
-      - name: Zip server code
+      - name: 📦 Zip server code for deployment
         run: |
           cd server
           zip -r ../app.zip . -x "*.git*" -x "*node_modules*"
 
-      - name: Login to Azure
+      - name: 🔐 Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3EC47BD4FD2C4FD885FB177C91B097D8 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1F9C0D29229E414C837FB9D9D2BF4567 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_89CC7CDB08CA405281F65BFE24CBF5C0 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
+      - name: 🚀 Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Project-'  # App name with dash
+          app-name: 'project--c2bdbrbgh2axaeae'  # ✅ Replace with your actual App Name
           slot-name: 'Production'
           package: app.zip
