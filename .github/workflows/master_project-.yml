@@ -11,56 +11,50 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      # Install client dependencies & build React app
       - name: Install frontend dependencies
         working-directory: client
         run: npm install
 
-      - name: Build React app
+      - name: Build frontend
         working-directory: client
         run: npm run build
 
-      # Copy React build to server folder
-      - name: Copy React build to server
+      - name: Copy build to server
         run: |
           rm -rf server/build
           cp -r client/build server/
 
-      # Install backend dependencies
-      - name: Install server dependencies
+      - name: Install backend dependencies
         working-directory: server
         run: npm install
 
-      # Zip the server folder
-      - name: Zip server for deployment
+      - name: Zip server code
         run: |
           cd server
-          zip -r ../server.zip . -x "*.git*" -x "*node_modules*"
+          zip -r ../app.zip . -x "*.git*" -x "*node_modules*"
 
-      # Login to Azure
-      - name: Azure Login
+      - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3EC47BD4FD2C4FD885FB177C91B097D8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1F9C0D29229E414C837FB9D9D2BF4567 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_89CC7CDB08CA405281F65BFE24CBF5C0 }}
 
-      # Deploy to Azure App Service
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Project-'  # Make sure this is your actual Azure Web App name
+          app-name: 'Project-'  # App name with dash
           slot-name: 'Production'
-          package: server.zip
+          package: app.zip
